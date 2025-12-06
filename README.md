@@ -1,9 +1,3 @@
-Here is an **updated, cleaner, more polished README** tailored to *your actual repo structure*, your *demo video*, and the *expense_manager_agent* layout you showed in the screenshot.
-
-It is **shorter, clearer, and more focused** while still looking like a professional ADK project README.
-
----
-
 # 🧾 Expense Manager Agent (Google ADK)
 
 A **multimodal personal finance agent** built with **Google ADK**.
@@ -206,14 +200,5 @@ GET  /healthz      # Health check
 
 Built using **Google ADK** multimodal agent patterns and Gemini 2.x capabilities.
 
----
 
-If you want, I can also:
 
-✅ Add screenshots
-✅ Add architecture diagrams
-✅ Add a badge section (Python version, license, etc.)
-✅ Format this markdown perfectly for GitHub
-✅ Tailor it exactly to your professor or submission requirements
-
-Would you like a **more compact**, **more aesthetic**, or **more academic** version?
