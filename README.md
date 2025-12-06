@@ -1,318 +1,219 @@
-# multimodal-expense-agent-adk
+Here is an **updated, cleaner, more polished README** tailored to *your actual repo structure*, your *demo video*, and the *expense_manager_agent* layout you showed in the screenshot.
 
-Full-stack **multimodal agent** built with Google **ADK**: web frontend, Python backend, RAG pipeline, and a production database (Postgres/AlloyDB with pgvector). The app ingests **images/PDFs/voice** (receipts, bank statements), extracts and grounds facts, and answers questions with citations—end-to-end, deployable on Cloud Run.
-
-> **Submission**: push this repo to GitHub and include a video walkthrough showing code + live demo.
+It is **shorter, clearer, and more focused** while still looking like a professional ADK project README.
 
 ---
 
-## ✨ Capabilities
+# 🧾 Expense Manager Agent (Google ADK)
 
-* **Multimodal intake**: images (receipts), PDFs, text, and microphone capture
-* **RAG** over user transactions & uploaded docs with **source citations**
-* **Structured DB** (Postgres/AlloyDB) + **pgvector** for embeddings
-* **Personal finance skills**: categorize expenses, monthly summaries, anomaly flags
-* **ADK graph**: tools for OCR, parsing, vector search, SQL, and summarization
-* **Prod-ready**: Docker, health checks, logging, tests, Makefile, IaC stubs
+A **multimodal personal finance agent** built with **Google ADK**.
+It ingests **images, PDFs, and text**, extracts structured expense data, stores it, and answers natural-language financial queries using **RAG** with citations.
+
+📺 **Demo Video:** [https://youtu.be/7CjIFm7-YNE](https://youtu.be/7CjIFm7-YNE)
 
 ---
 
-## 🗂️ Repository Structure
+## ✨ Features
+
+* **OCR + Parsing** for receipts, invoices, bank statements
+* **Schema-grounded extraction** (Pydantic schema + post-processing)
+* **RAG pipeline** for answering finance questions with citations
+* **Persistent storage** of parsed expenses (SQLite/Postgres)
+* **Modular ADK agent** with tools, callbacks, and a task prompt
+* **Frontend CLI/Web interface** for quick testing
+* **Containerized deployment** via Docker & supervisord
+
+---
+
+## 📦 Repository Structure
 
 ```
-multimodal-expense-agent-adk/
-├─ README.md
-├─ LICENSE
-├─ Makefile
-├─ .env.sample
-├─ devcontainer.json
-├─ scripts/
-│  ├─ bootstrap.sh              # install deps, enable APIs
-│  ├─ run_local.sh              # local dev
-│  ├─ deploy_cloudrun.sh        # container build + deploy
-│  ├─ seed_db.sql               # schema + seed data
-│  └─ create_pgvector.sql       # pgvector extension
-├─ infra/
-│  ├─ gcloud/                   # optional gcloud helpers
-│  └─ terraform/                # optional IaC (Cloud Run, DB, buckets)
-├─ frontend/                    # Next.js (App Router) + Tailwind + shadcn/ui
-│  ├─ app/
-│  ├─ components/
-│  ├─ lib/
-│  ├─ public/
-│  └─ README.md
-├─ backend/                     # FastAPI + ADK graph + tools
-│  ├─ adk_graph/                # nodes, tools, policies
-│  ├─ apis/                     # REST endpoints
-│  ├─ rag/                      # chunking, embeddings, retriever
-│  ├─ db/                       # SQLAlchemy models, migrations
-│  ├─ tests/
-│  ├─ main.py
-│  ├─ pyproject.toml
-│  └─ README.md
-├─ docs/
-│  ├─ ARCHITECTURE.md
-│  ├─ VIDEOS.md
-│  ├─ API.md
-│  ├─ DB_SCHEMA.md
-│  └─ RAG_PIPELINE.md
-└─ out/                         # sample artifacts (sanitized)
+expense_manager_agent/
+├── agent.py                 # Core ADK agent
+├── callbacks.py             # Tool callbacks / logging hooks
+├── tools.py                 # OCR, parsing, RAG, DB tools
+├── schema.py                # Pydantic schemas for expenses & documents
+├── backend.py               # API service exposing agent endpoints
+├── frontend.py              # Simple UI / CLI interface
+├── logger.py                # Structured logging
+├── utils.py                 # Helpers
+├── settings.py              # Runtime config
+├── settings.yaml            # Default configuration
+├── Dockerfile               # Containerization
+├── supervisord.conf         # Process manager (backend + agent)
+├── task_prompt.md           # Agent system prompt & tool descriptions
+├── README.md                # ← You are here
+└── LICENSE
 ```
 
 ---
 
 ## 🧰 Tech Stack
 
-* **Frontend**: Next.js 14, React 18, Tailwind, shadcn/ui, file & audio upload
-* **Backend**: FastAPI, Google **ADK**, Pydantic, SQLAlchemy
-* **RAG**: text/image parsers, chunker, **pgvector** embeddings, retriever with citations
-* **DB**: Postgres / **AlloyDB** (managed), migration ready
-* **Models**: Gemini 2.0/2.5 (vision+text) via ADK tools
-* **Deploy**: Docker + Cloud Run, optional Terraform modules
-
----
-
-## 🔐 Environment Variables
-
-Copy `.env.sample` → `.env` and fill:
-
-```
-GOOGLE_CLOUD_PROJECT=your-gcp-project
-GOOGLE_CLOUD_REGION=us-central1
-GEMINI_MODEL=gemini-2.0-pro-exp   # or 1.5-pro, 2.5-flash (per access)
-GEMINI_API_KEY=...
-
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_NAME=expenses
-DB_USER=postgres
-DB_PASSWORD=postgres
-
-# Storage (for raw uploads)
-BUCKET_NAME=mm-expense-uploads
-```
+* **Google ADK** (agents, graphs, tools)
+* **Python 3.10+**, FastAPI-style backend
+* **Gemini 2.x models** for OCR + reasoning
+* **Pydantic** for structured extraction
+* **SQLite/Postgres** for persistent expense storage
+* **Docker + Supervisord** for deployment
 
 ---
 
 ## 🚀 Quickstart
 
-```bash
-# 1) Clone
-git clone https://github.com/<you>/multimodal-expense-agent-adk.git
-cd multimodal-expense-agent-adk
-
-# 2) Bootstrap
-bash scripts/bootstrap.sh            # installs, enables gcloud APIs (optional)
-
-# 3) Setup DB (local Postgres)
-createdb expenses || true
-psql -d expenses -f scripts/create_pgvector.sql
-psql -d expenses -f scripts/seed_db.sql
-
-# 4) Backend (FastAPI + ADK)
-cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -e .
-uvicorn main:app --reload --port 8001
-
-# 5) Frontend (Next.js)
-cd ../frontend
-pnpm install
-pnpm dev  # http://localhost:3000
-```
-
----
-
-## 🧪 Smoke Test
-
-* Open `http://localhost:3000`
-* Upload a **receipt image** → see parsed line-items and total
-* Ask: “What did I spend on dining in October?” → RAG answer with citations
-* Check backend health: `GET http://localhost:8001/healthz`
-
----
-
-## 🧬 Architecture (High-Level)
-
-**Frontend**
-
-* File/image/voice capture → `/api/upload`
-* Chat UI streams ADK responses (SSE)
-
-**Backend**
-
-* **ADK Graph**:
-
-  1. **Ingest Node** (detect type: image/PDF/text)
-  2. **Parse/OCR Tool** (vision model → JSON)
-  3. **Normalizer** (schema: `transactions`, `merchants`, `documents`)
-  4. **Embed & Upsert** (pgvector, chunk + metadata)
-  5. **Retriever** (hybrid keyword + vector)
-  6. **Grounded Answer** (Gemini with tool context, return citations)
-
-**Database**
-
-* Tables: `users`, `transactions`, `merchants`, `documents`, `chunks`, `embeddings`
-* Views: `v_monthly_spend`, `v_anomalies`
-
-See `docs/ARCHITECTURE.md` and `docs/DB_SCHEMA.md`.
-
----
-
-## 🗃️ Database Schema (excerpt)
-
-```sql
-CREATE TABLE IF NOT EXISTS documents(
-  id UUID PRIMARY KEY,
-  user_id UUID NOT NULL,
-  filename TEXT,
-  media_type TEXT,
-  uploaded_at TIMESTAMP DEFAULT now(),
-  source TEXT
-);
-
-CREATE TABLE IF NOT EXISTS transactions(
-  id UUID PRIMARY KEY,
-  user_id UUID NOT NULL,
-  merchant TEXT,
-  category TEXT,
-  amount NUMERIC(12,2),
-  currency TEXT DEFAULT 'USD',
-  ts TIMESTAMP,
-  doc_id UUID REFERENCES documents(id)
-);
-
--- Vector store
-CREATE EXTENSION IF NOT EXISTS vector;
-CREATE TABLE IF NOT EXISTS chunks(
-  id UUID PRIMARY KEY,
-  doc_id UUID REFERENCES documents(id),
-  content TEXT,
-  metadata JSONB,
-  embedding VECTOR(1536)
-);
-CREATE INDEX ON chunks USING ivfflat (embedding vector_cosine_ops);
-```
-
-Full schema: `docs/DB_SCHEMA.md`.
-
----
-
-## 📚 RAG Pipeline
-
-1. **Parse**: OCR/vision → clean JSON lines (`vendor`, `date`, `amount`)
-2. **Normalize**: map to canonical categories (Food, Travel, Utilities…)
-3. **Chunk & Embed**: invoice line-items, bank txt → `chunks` + `embedding`
-4. **Retrieve**: vector + keyword; filter by user/time/category
-5. **Answer**: prompt Gemini with retrieved context → **citations** back to `documents/chunks`
-
-Details & prompts: `docs/RAG_PIPELINE.md`.
-
----
-
-## 🧩 Key API Endpoints
-
-See `docs/API.md` for full spec.
-
-```
-POST /api/upload              # multipart: image/pdf
-POST /api/chat                # {message, mode} → SSE stream
-GET  /api/transactions        # query params: month, category
-GET  /healthz                 # liveness
-GET  /readyz                  # readiness
-```
-
----
-
-## 🖥️ Frontend UX
-
-* **Upload Panel**: drag-drop files, preview
-* **Chat**: streaming responses, source chips (click to preview doc snippet)
-* **Insights**: monthly spend, category charts, anomalies
-* **Settings**: DB status, reindex, export CSV
-
-Run scripts and component notes in `frontend/README.md`.
-
----
-
-## ☁️ Deploy to Cloud Run
+### 1️⃣ Install Dependencies
 
 ```bash
-# build images
-gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/mm-expense-backend ./backend
-gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/mm-expense-frontend ./frontend
-
-# create Cloud SQL / AlloyDB (optional via Terraform)
-# set env vars & deploy
-bash scripts/deploy_cloudrun.sh
+pip install -r requirements.txt
 ```
 
-* Use **Serverless VPC Access** or a connector for DB
-* Configure **CORS** for frontend ↔ backend
-* Set **BUCKET_NAME** for uploads if using GCS
-
----
-
-## ✅ Grading Checklist
-
-* [ ] Repo builds locally; **frontend** + **backend** run
-* [ ] **DB schema + seed** executed; pgvector enabled
-* [ ] Upload → parse → DB upsert → embed → retrieve → answer (citations)
-* [ ] Chat works with **images** and **text**
-* [ ] Clear **RAG** docs, prompts, and evaluation examples
-* [ ] Cloud Run deploy for both services (URLs shown)
-* [ ] **Video walkthrough** links in `docs/VIDEOS.md`
-* [ ] Tests pass (`backend/tests`, basic e2e smoke)
-
----
-
-## 🧪 Tests
+### 2️⃣ Run the Agent Backend
 
 ```bash
-# Backend unit tests
-cd backend && pytest -q
-
-# Minimal e2e: starts API, posts a sample receipt, queries monthly summary
-make e2e
+python backend.py
 ```
 
-* Golden answers for fixed inputs in `backend/tests/golden/`
-* Deterministic stubs for OCR and embeddings in CI
+### 3️⃣ Run the Frontend/CLI
+
+```bash
+python frontend.py
+```
+
+### 4️⃣ Upload a Receipt
+
+Try:
+
+* an image
+* a screenshot
+* a PDF
+
+Then ask questions like:
+
+> “What did I spend on dining last month?”
+> “Summarize my expenses by category.”
+> “Find anomalies in November.”
 
 ---
 
-## 🎥 Video Walkthrough (what to show)
+## 🧬 How It Works
 
-1. **Architecture tour** (diagram, ADK graph nodes, DB schema)
-2. **Code walkthrough**:
+### 🔹 1. Ingest
 
-   * ADK tool nodes (OCR, RAG, SQL)
-   * Retriver/embedding path
-   * FastAPI endpoints
-   * Frontend upload & chat components
-3. **Run locally**: upload a receipt → show parsed rows → chat summary with citations
-4. **DB demo**: `SELECT * FROM transactions` and `chunks`
-5. **Cloud Run**: open deployed URLs, repeat a query
-6. **Gotchas**: MIME handling, timezones, currency parsing, PII considerations
+User uploads an image/PDF → routed into the ADK graph.
 
-Put the link(s) in `docs/VIDEOS.md`.
+### 🔹 2. Parse
+
+OCR + multimodal Gemini model extract:
+
+* vendor
+* date
+* amount
+* line items
+* category (predicted or inferred)
+
+### 🔹 3. Normalize
+
+Mapped to canonical schema (`schema.py`).
+
+### 🔹 4. Store
+
+Inserted into persistent storage.
+
+### 🔹 5. Retrieval
+
+RAG retrieves relevant entries using:
+
+* keyword search
+* semantic retrieval (embeddings)
+
+### 🔹 6. Grounded Answering
+
+Gemini answers with **citations** to parsed data.
 
 ---
 
-## 🔒 Privacy & Safety
+## 🖥️ Demo (Video Walkthrough)
 
-* Do not commit raw user receipts or PII; store redacted samples in `out/`
-* Enable HTTPS on Cloud Run; restrict public access if needed
-* Consider row-level security per `user_id`
+The demo covers:
+
+1. Architecture overview
+2. Code structure (tools, callbacks, agent graph)
+3. Uploading receipts
+4. Extracted structured JSON
+5. Asking financial questions
+6. Grounded answers with citations
+
+📺 **Watch the Demo:** [https://youtu.be/7CjIFm7-YNE](https://youtu.be/7CjIFm7-YNE)
+
+---
+
+## 🛠️ Configuration
+
+Copy the example:
+
+```bash
+cp settings.yaml.example settings.yaml
+```
+
+Edit keys:
+
+```yaml
+gemini_model: "gemini-2.0-pro-exp"
+database_url: "sqlite:///expenses.db"
+enable_embeddings: true
+```
+
+---
+
+## 🐳 Docker Deployment
+
+Build & run:
+
+```bash
+docker build -t expense-agent .
+docker run -p 8000:8000 expense-agent
+```
+
+Supervisord launches:
+
+* agent service
+* backend API
+
+---
+
+## 📑 API Endpoints (Backend)
+
+```
+POST /ingest       # Upload + parse
+POST /chat         # Ask a question
+GET  /expenses     # List stored expenses
+GET  /healthz      # Health check
+```
+
+---
+
+## 📌 Roadmap
+
+* [ ] Add voice → text ingestion
+* [ ] Fine-grained category prediction
+* [ ] Export as CSV / PDF
+* [ ] Monthly/weekly insights dashboards
+* [ ] Cloud Run deployment with managed DB
 
 ---
 
 ## 🙏 Credits
 
-* Codelab: *Personal Expense Assistant (Multimodal ADK)*
-* Related articles on Gemini 2.5 + ADK multimodal workflows
-* Thanks to the ADK community for reference graphs & tools
+Built using **Google ADK** multimodal agent patterns and Gemini 2.x capabilities.
 
 ---
 
-> **Repo name ideas**: `multimodal-expense-agent-adk`, `adk-multimodal-finance-assistant`, or `gemini-expense-agent-e2e`.
+If you want, I can also:
+
+✅ Add screenshots
+✅ Add architecture diagrams
+✅ Add a badge section (Python version, license, etc.)
+✅ Format this markdown perfectly for GitHub
+✅ Tailor it exactly to your professor or submission requirements
+
+Would you like a **more compact**, **more aesthetic**, or **more academic** version?
